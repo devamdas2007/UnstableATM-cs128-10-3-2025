@@ -74,3 +74,35 @@ TEST_CASE("Example: Print Prompt Ledger", "[ex-3]") {
   atm.PrintLedger("./prompt.txt", 12345678, 1234);
   REQUIRE(CompareFiles("./ex-1.txt", "./prompt.txt"));
 }
+
+TEST_CASE("Double Register Account", "[Test1]") {
+  Atm atm;
+  atm.RegisterAccount(12345678, 1234, "Abe Lincoln", 453.58);
+  REQUIRE_THROWS(atm.RegisterAccount(12345678, 1234, "Bob", 2389.42));
+}
+TEST_CASE("Overdrawn Account", "[Test2]") {
+  Atm atm;
+  atm.RegisterAccount(12345678, 1234, "Abe Lincoln", 453.58);
+  REQUIRE_THROWS(atm.WithdrawCash(12345678, 1234, 2389.42));
+  REQUIRE_THROWS(atm.WithdrawCash(12345678, 1234, -5));
+  REQUIRE_THROWS(atm.WithdrawCash(12345778, 1334, 200));
+}
+
+TEST_CASE("Deposit Cash Exceptions", "[Test3]") {
+  Atm atm;
+  atm.RegisterAccount(12345678, 1234, "Abe Lincoln", 453.58);
+  REQUIRE_THROWS(atm.DepositCash(12345678, 1324, 2389.42));
+  REQUIRE_THROWS(atm.DepositCash(12345978, 1324, 2389.42));
+  REQUIRE_THROWS(atm.DepositCash(12345778, 1324, 2389.42));
+  REQUIRE_THROWS(atm.DepositCash(12345678, 1234, -1));
+}
+TEST_CASE("Deposit Cash Amount", "[Test3]") {
+  Atm atm;
+  atm.RegisterAccount(12345678, 1234, "Abe Lincoln", 400.00);
+  atm.DepositCash(12345678, 1234, 100.00);
+  atm.DepositCash(12345678, 1234, 300.00);
+  atm.DepositCash(12345678, 1234, 600.00);
+  atm.DepositCash(12345678, 1234, 50.00);
+  atm.DepositCash(12345678, 1234, 35.00);
+  REQUIRE(atm.CheckBalance(12345678, 1234) == 1485);
+}
